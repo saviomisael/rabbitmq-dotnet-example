@@ -1,4 +1,6 @@
 ﻿using System.Text;
+using ConsumerExample;
+using Newtonsoft.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
@@ -16,7 +18,15 @@ consumer.Received += (model, ea) =>
 {
   var body = ea.Body.ToArray();
   var message = Encoding.UTF8.GetString(body);
-  Console.WriteLine($" [x] Received {message}");
+
+  User? user = JsonConvert.DeserializeObject<User>(message);
+
+  if (user is null)
+  {
+    return;
+  }
+  
+  Console.WriteLine($" [x] Received {message}, email: {user.Email} e username: {user.Username}");
 };
 
 channel.BasicConsume("hello", true, consumer);
